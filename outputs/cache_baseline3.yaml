@@ -1,0 +1,40 @@
+cache:
+  cache_block_range_properties:
+    description: Cache blocks represent a contiguous, naturally aligned power-of-two (NAPOT) range of memory locations.
+    type: addressing
+    constraints:
+      contiguous: true
+      naturally_aligned: true
+      power_of_two_or_napot: true
+
+  cache_block_identification_by_physical_address:
+    description: A cache block is identified by any of the physical addresses corresponding to the underlying memory locations.
+    type: addressing
+    constraints:
+      address_space: physical
+      any_address_within_block_identifies_block: true
+
+  cache_capacity:
+    description: Capacity of a cache.
+    type: size
+    constraints:
+      implementation_specific: true
+
+  cache_organization:
+    description: Organization of a cache.
+    type: organization
+    constraints:
+      implementation_specific: true
+
+  cache_block_size:
+    description: Size of a cache block.
+    type: size
+    constraints:
+      implementation_specific: true
+      uniform_throughout_system_in_initial_cmo_extensions: true
+
+  cache_discovery_mechanism:
+    description: Execution environment provides software a means to discover information about caches and cache blocks in a system.
+    type: feature
+    constraints:
+      provided_by_execution_environment: true

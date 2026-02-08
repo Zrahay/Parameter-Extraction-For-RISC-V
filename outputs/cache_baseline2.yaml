@@ -1,0 +1,42 @@
+isa_cpu:
+  cache:
+    cache_block_range_properties:
+      description: Cache blocks represent a contiguous, naturally aligned power-of-two (NAPOT) range of memory locations.
+      type: constraint
+      constraints:
+        contiguity: required
+        alignment: naturally_aligned
+        size_form: power_of_two_or_napot
+    cache_block_identification:
+      description: A cache block is identified by any physical address corresponding to an underlying memory location within the block.
+      type: addressing
+      constraints:
+        address_space: physical
+        identification_rule: any_address_within_block
+    cache_capacity:
+      description: Cache capacity is implementation-specific.
+      type: configurable
+      constraints:
+        implementation_specific: true
+    cache_organization:
+      description: Cache organization is implementation-specific.
+      type: configurable
+      constraints:
+        implementation_specific: true
+    cache_block_size:
+      description: Cache block size is implementation-specific.
+      type: configurable
+      constraints:
+        implementation_specific: true
+    cache_discovery_mechanism:
+      description: The execution environment provides software a means to discover information about caches and cache blocks in a system.
+      type: capability
+      constraints:
+        provided_by: execution_environment
+        scope: caches_and_cache_blocks
+    cache_block_size_uniformity:
+      description: In the initial set of CMO extensions, the cache block size shall be uniform throughout the system.
+      type: constraint
+      constraints:
+        uniform_system_wide: true
+        applicability: initial_set_of_CMO_extensions
