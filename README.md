@@ -18,53 +18,50 @@ Please submit the following information:
 **Context Window:** Up to 400,000 tokens
 **Max Output Tokens:** Up to 128,000 tokens
 **Temperature:** 0 (deterministic extraction)
-**Total Tokens Processed for this Extraction: 4,693**
-
-# 2. Prompt Engineering Methodology
-
-The prompt underwent multiple refinement stages to improve:
-
-* Structural consistency
-* Parameter coverage
-* Constraint extraction
-* Hallucination control
-
-## 2.1 Baseline Prompt (Zero-Shot)
-
-The initial prompt instructed the model to:
-
-* Extract architectural parameters
-* Return YAML output
-* Avoid hallucinations
-
-### Observations
-
-**Strengths:**
-
-* High parameter detection
-* Good encoding extraction
-
-**Shortcomings:**
-
-* Structural inconsistency
-* Category nesting errors
-* Naming variance
-* Partial constraint capture
-
-Example issue:
-
-```
-isa_cpu:
-  cache:
-```
-
-Cache parameters were incorrectly nested under ISA CPU.
+**Total Tokens Processed for this Extraction:** 4,693
 
 ---
 
-## 2.2 Hierarchical Schema Integration
+# 2. Prompt Engineering Methodology
 
-A category schema was introduced:
+The prompt design process followed an iterative refinement approach.
+Three distinct prompt versions were developed to progressively improve extraction accuracy, structural consistency, and hallucination control.
+
+The evolution of prompts is summarized below.
+
+---
+
+## 2.1 Prompt v1 — Baseline Parameter Extraction
+
+The first prompt focused on direct architectural parameter extraction without enforcing hierarchy.
+
+**Capabilities:**
+
+* Extracted sizes, limits, and widths
+* Detected encoding bit ranges
+* Identified accessibility and alignment properties
+* Returned parameters in flat YAML format
+
+**Strengths:**
+
+* High parameter detection rate
+* Accurate encoding extraction
+* Good identification of structural properties
+
+**Shortcomings:**
+
+* No architectural grouping
+* Inconsistent parameter naming
+* Missed scope constraints (e.g., uniformity qualifiers)
+* Limited interpretation of normative specification language
+
+This version established baseline extraction feasibility but lacked structural organization.
+
+---
+
+## 2.2 Prompt v2 — Hierarchical Schema Integration
+
+To address structural limitations, a hierarchical schema was introduced:
 
 ```
 isa_cpu
@@ -75,86 +72,98 @@ privilege
 memory
 ```
 
-### Outcome
+The goal was to group parameters under architectural subsystems.
 
-Partial improvement, but schema alone was insufficient.
-The model still inferred real-world hierarchy (CPU → Cache).
+**Enhancements Introduced:**
 
----
+* Category-based organization
+* Improved readability of outputs
+* Subsystem-level parameter mapping
 
-## 2.3 Specification Language Interpretation Layer
+**Observed Improvements:**
 
-To improve constraint extraction, normative ISA keywords were mapped to parameter semantics.
+* CSR encodings grouped correctly
+* Addressing and accessibility fields better structured
 
-### Signals Incorporated
+**Limitations Observed:**
 
-| Spec Term               | Interpretation            |
-| ----------------------- | ------------------------- |
-| implementation-specific | Configurable parameter    |
-| optional                | Feature parameter         |
-| may                     | Conditional capability    |
-| shall / must            | Mandatory constraint      |
-| uniform                 | System-wide constraint    |
-| power-of-two            | Alignment/size constraint |
-| naturally aligned       | Address constraint        |
-| encoding bits           | Structural encoding       |
+Schema text alone did not fully anchor hierarchy.
 
-### Impact
+The model sometimes inferred real-world architectural containment, producing outputs such as:
 
-Improved detection of:
+```
+isa_cpu:
+  cache:
+```
 
-* Uniformity constraints
-* Alignment properties
-* Implementation variability
-* Accessibility semantics
-
-## 2.4 Few-Shot Structural Anchoring
-
-Few-shot prompting was introduced to stabilize hierarchy.
-
-### Example 1 — CSR Encoding
-
-Demonstrated:
-
-* Bit ranges
-* Width extraction
-* Accessibility encoding
-
-This successfully anchored CSR parameters at the top level.
+This indicated ontology drift despite schema presence.
 
 ---
 
-## 2.5 Multi-Category Few-Shot Expansion
+## 2.3 Prompt v3 — Few-Shot + Constraint-Aware Hierarchical Prompt
 
-A second example was added for cache parameters.
+The final prompt iteration incorporated multiple refinements to resolve structural and semantic shortcomings.
 
-### Cache Example Anchored
+### Enhancements Introduced
 
-* Implementation-specific size
-* Uniformity constraint
+**1. Specification Language Interpretation Layer**
 
-This eliminated incorrect nesting under ISA CPU.
+Normative ISA keywords were mapped to parameter semantics:
+
+* implementation-specific → configurable parameter
+* optional → feature capability
+* shall / must → mandatory constraint
+* uniform → system-wide constraint
+* power-of-two → size/alignment constraint
+* naturally aligned → address constraint
+
+This significantly improved constraint extraction fidelity.
 
 ---
 
-## 2.6 Anti-Hallucination Controls
+**2. Few-Shot Structural Anchoring**
 
-Explicit rules were introduced:
+Few-shot examples were added to stabilize category placement:
+
+* CSR encoding example → anchored encoding hierarchy
+* Cache parameter example → prevented ISA nesting
+
+This eliminated cross-category drift.
+
+---
+
+**3. Category Independence Rules**
+
+Explicit instructions ensured:
+
+* All architecture categories remain top-level
+* No category nesting allowed
+
+---
+
+**4. Anti-Hallucination Controls**
+
+Rules were introduced to suppress speculative outputs:
 
 * Do not infer absent parameters
-* Do not output placeholders
+* Do not generate placeholders
 * Omit unsupported categories entirely
 
-### Result
+---
 
-Eliminated outputs such as:
+## 2.4 Evolution Summary
 
-```
-memory:
-  page_size: not specified
-```
+| Capability            | Prompt v1 | Prompt v2    | Prompt v3 |
+| --------------------- | --------- | ------------ | --------- |
+| Parameter detection   | High      | High         | High      |
+| Constraint extraction | Moderate  | High         | Very High |
+| Structural grouping   | None      | Partial      | Stable    |
+| Hierarchy correctness | —         | Inconsistent | Correct   |
+| Hallucination control | Low       | Medium       | Strong    |
 
-Ensured extraction remained text-grounded.
+---
+
+The final prompt (v3) produced structurally consistent, constraint-complete YAML outputs aligned with ISA specification semantics, making it suitable for automated architectural knowledge extraction.
 
 ---
 
@@ -229,7 +238,6 @@ cache:
       provided_by_execution_environment: true
 ```
 
-
 ---
 
 ## 4.2 CSR Parameters — Extracted
@@ -277,4 +285,3 @@ csr:
 ```
 
 ---
-
