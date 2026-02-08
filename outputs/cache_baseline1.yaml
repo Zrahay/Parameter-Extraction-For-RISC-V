@@ -1,0 +1,40 @@
+isa_cpu:
+  cache:
+    cache_block:
+      description: Cache blocks represent a contiguous range of memory locations.
+      type: structure
+      constraints:
+        contiguity: contiguous
+        alignment: naturally_aligned
+        size_form: power_of_two_or_NAPOT
+    cache_block_identification:
+      description: A cache block is identified by any physical address corresponding to an underlying memory location within the block.
+      type: addressing
+      constraints:
+        address_type: physical
+        identification_rule: any_address_within_block
+    cache_capacity:
+      description: Cache capacity is implementation-specific.
+      type: configurable
+      constraints:
+        implementation_specific: true
+    cache_organization:
+      description: Cache organization is implementation-specific.
+      type: configurable
+      constraints:
+        implementation_specific: true
+    cache_block_size:
+      description: Cache block size is implementation-specific.
+      type: configurable
+      constraints:
+        implementation_specific: true
+        uniform_throughout_system: true
+        applies_to: initial_set_of_CMO_extensions
+    cache_discovery_mechanism:
+      description: The execution environment provides software a means to discover information about caches and cache blocks in a system.
+      type: capability
+      constraints:
+        provided_by: execution_environment
+        discoverable_objects:
+          - caches
+          - cache_blocks

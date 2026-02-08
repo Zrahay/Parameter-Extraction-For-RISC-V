@@ -1,0 +1,37 @@
+parameters:
+  - name: CSR address encoding space width
+    description: CSR address uses a 12-bit encoding space denoted csr[11:0].
+    type: size
+    constraints:
+      width_bits: 12
+      bit_range: "[11:0]"
+  - name: Maximum number of CSRs
+    description: A 12-bit CSR address space allows up to 4,096 CSRs.
+    type: limit
+    constraints:
+      max_csrs: 4096
+      derived_from_bits: 12
+  - name: CSR accessibility encoding field (upper nibble)
+    description: By convention, the upper 4 bits of the CSR address encode read/write accessibility and privilege accessibility.
+    type: encoding
+    constraints:
+      bit_range: "[11:8]"
+      field_width_bits: 4
+  - name: CSR read/write vs read-only encoding
+    description: The top two bits of the CSR address indicate whether the CSR is read/write or read-only.
+    type: encoding
+    constraints:
+      bit_range: "[11:10]"
+      field_width_bits: 2
+      encodings:
+        "00": read_write
+        "01": read_write
+        "10": read_write
+        "11": read_only
+  - name: CSR minimum privilege level encoding
+    description: The next two bits of the CSR address encode the lowest privilege level that can access the CSR.
+    type: encoding
+    constraints:
+      bit_range: "[9:8]"
+      field_width_bits: 2
+      meaning: lowest_privilege_level_with_access
